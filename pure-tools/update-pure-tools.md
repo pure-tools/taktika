@@ -18,13 +18,13 @@ For each project:
 
 1. **Check current versions** — run `npm list @pure-tools/paletka @pure-tools/monetka @pure-tools/mobilka @pure-tools/babetka @pure-tools/slushalka` to see what's installed.
 
-2. **Get latest versions from npm**:
+2. **Get latest versions from npm** (`--prefer-online` — the local npm cache can report a stale version for minutes after a publish):
    ```
-   npm view @pure-tools/paletka version
-   npm view @pure-tools/monetka version
-   npm view @pure-tools/mobilka version
-   npm view @pure-tools/babetka version
-   npm view @pure-tools/slushalka version
+   npm view @pure-tools/paletka version --prefer-online
+   npm view @pure-tools/monetka version --prefer-online
+   npm view @pure-tools/mobilka version --prefer-online
+   npm view @pure-tools/babetka version --prefer-online
+   npm view @pure-tools/slushalka version --prefer-online
    ```
 
 3. **Install latest** in each project directory:
@@ -35,7 +35,7 @@ For each project:
 4. **Build each project** to verify no breaking changes:
    - `npm run build` and `npm test`
    - If build fails, diagnose and fix before committing.
-   - cuefade: `ng build` currently fails on master with 3 `@capacitor/*` resolve errors from mobilka's dynamic imports — pre-existing; compare against master before blaming the upgrade.
+   - Test failures in files with uncommitted local changes are WIP, not the upgrade — commit only `package.json` + `package-lock.json`, never stage the user's WIP.
 
 5. **Commit and push** each project:
    ```
@@ -48,5 +48,6 @@ For each project:
 
 - top-3-in-sports always needs `--legacy-peer-deps` due to pre-existing TypeScript 6 vs typescript-eslint peer conflict.
 - garden uses `isAuthenticated` (not `isLoggedIn`) on its `AuthService` — the `AUTH_PROVIDER` factory adapter in `app.config.ts` bridges this.
+- 0.x minor bumps (e.g. mobilka 0.3 → 0.4) are outside `^` ranges and may be breaking — check the release commit. mobilka 0.4.0: Capacitor services import from `@pure-tools/mobilka/native`.
 - If a new pure-tools package introduces breaking API changes, check each project's integration points before pushing.
 - Run projects in parallel where possible to save time.
