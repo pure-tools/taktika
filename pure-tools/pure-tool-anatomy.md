@@ -166,3 +166,4 @@ npm run publish:lib
 | `@pure-tools/mobilka` | Responsive breakpoint signals |
 | `@pure-tools/monetka` | Stripe / Lemon Squeezy payments |
 | `@pure-tools/babetka` | Auth guards, session timeout, rate limiting, sanitization, AI security |
+| `@pure-tools/slushalka` | Product analytics — PostHog/Plausible/Umami adapters, consent, page views, click + error tracking |

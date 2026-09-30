@@ -87,7 +87,7 @@ See also: `/env` skill (vercel plugin).
 ## Troubleshooting checklist
 
 1. **Build failed** → check build logs for TypeScript or ng-packagr errors. Run `npm run build` locally first.
-2. **Runtime 500** → check runtime logs via Vercel MCP. Usually a missing env var or Supabase connection issue.
+2. **Runtime 500** → check runtime logs via Vercel MCP. Usually a missing env var or Supabase connection issue. Code bugs → `/fix-logs` opens a PR per root cause.
 3. **SSR prerender crash** → `localStorage` accessed in Node context. Fix: wrap in try/catch (see `/fix-tests` pattern 3).
 4. **Env var missing** → `vercel env ls production` — compare against what the app reads from `environment.ts`.
 5. **Old deployment served** → check if CDN cache invalidation is needed: `vercel alias` or redeploy.
