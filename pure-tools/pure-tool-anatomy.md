@@ -138,6 +138,25 @@ if (typeof localStorage !== 'undefined') localStorage.getItem(key);
 try { return localStorage.getItem(key); } catch { return null; }
 ```
 
+## localStorage in specs (Node 25+)
+
+Node 25 ships a global `localStorage` stub (no methods) that shadows jsdom's — `localStorage.clear is not a function`. Stub it per spec:
+
+```ts
+const store = new Map<string, string>();
+const localStorageMock = {
+  getItem: (k: string) => store.get(k) ?? null,
+  setItem: (k: string, v: string) => { store.set(k, v); },
+  removeItem: (k: string) => { store.delete(k); },
+  clear: () => store.clear(),
+};
+vi.stubGlobal('localStorage', localStorageMock);
+```
+
+## ng-packagr target lib
+
+ng-packagr ignores `tsconfig.json` `lib` — ES2019+ APIs like `Object.fromEntries` fail the build (TS2550) even though Vitest passes. Use a plain loop, or run `npm run build` early.
+
 ## Consumer integration pattern
 
 In `app.config.ts`:

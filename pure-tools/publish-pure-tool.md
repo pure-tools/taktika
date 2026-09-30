@@ -53,6 +53,12 @@ npm view @pure-tools/<name> version
 
 Wait up to 2 minutes for registry propagation.
 
+**First publish of a new package:** `npm view` / `npm install` can 404 for 10+ minutes (cached negative lookup). Confirm it actually published with:
+```bash
+npm access list packages @pure-tools   # new package listed = published
+```
+Meanwhile verify consumers against a local tarball: `cd dist && npm pack`, then `npm install --no-save <path>.tgz` in the consumer. Run a real `npm install` once the registry serves it, so the lockfile is correct.
+
 ### 6. Update all consumer projects
 
 → Run `/update-pure-tools`
@@ -69,7 +75,7 @@ git push
 
 | Project | Path | Notes |
 |---------|------|-------|
-| cuefade | `C:\Work\git\cuefade` | standard npm install |
+| cuefade | `C:\Work\git\cuefade` | standard npm install; only consumer of slushalka |
 | top-3-in-sports | `C:\Work\git\top-3-in-sports` | needs `--legacy-peer-deps` |
 | garden | `C:\Work\git\garden` | standard npm install |
 

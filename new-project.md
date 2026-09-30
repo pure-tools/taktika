@@ -30,7 +30,7 @@ ng new <app-name> --routing --style css --ssr true
 ### 2. Install pure-tools packages
 
 ```bash
-npm install @pure-tools/paletka @pure-tools/mobilka @pure-tools/monetka @pure-tools/babetka
+npm install @pure-tools/paletka @pure-tools/mobilka @pure-tools/monetka @pure-tools/babetka @pure-tools/slushalka
 ```
 
 ### 3. Wire pure-tools in app.config.ts
@@ -40,6 +40,10 @@ import { provideTheme } from '@pure-tools/paletka';
 import { provideResponsive } from '@pure-tools/mobilka';
 import { providePayments } from '@pure-tools/monetka';
 import { AUTH_PROVIDER, provideSecurka } from '@pure-tools/babetka';
+import {
+  provideSlushalka, providePageViewTracking, provideErrorTracking,
+  umamiAdapter, consoleAdapter,
+} from '@pure-tools/slushalka';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -49,6 +53,12 @@ export const appConfig: ApplicationConfig = {
     providePayments({ provider: 'stripe', publicKey: env.stripePublicKey, productId: env.stripePriceId }),
     { provide: AUTH_PROVIDER, useExisting: AuthService },   // or useFactory adapter if signal name differs
     provideSecurka(),
+    provideSlushalka({
+      adapters: env.production ? [umamiAdapter()] : [consoleAdapter()],
+      superProps: { app: '<app-name>' },
+    }),
+    providePageViewTracking(),   // hash routes included
+    provideErrorTracking(),      // browser errors → $exception (Vercel logs never see these)
   ],
 };
 ```
@@ -70,6 +80,18 @@ export class App {
   }
 }
 ```
+
+### 4b. Analytics events
+
+Track the funnel from day one — cheap now, impossible to backfill later:
+
+- `upgrade_modal_shown` with `{ source }` = which gated feature triggered it
+- `checkout_started` / `checkout_failed` / `checkout_completed` (Stripe `?upgraded=1` return)
+- one event per core feature (e.g. cuefade: `crossfade_started`, `cue_point_added`)
+- `identify(user.id)` on login (never email), `setSuperProps({ plan })`, `reset()` on logout only
+
+Umami: load `https://cloud.umami.is/script.js` with `data-auto-track="false"` only when `umamiWebsiteId` is set (see cuefade `core/analytics/cuefade-analytics.ts`).
+Specs: any TestBed that creates a class injecting `AnalyticsService` needs `{ provide: AnalyticsService, useValue: { track: vi.fn(), ... } }`.
 
 ### 5. Add Supabase (if auth + DB needed)
 
@@ -111,6 +133,7 @@ git push -u origin main
 - [ ] `npm test` passes
 - [ ] `vercel env ls` shows all required vars
 - [ ] `AUTH_PROVIDER` wired — `babetka` guards work
+- [ ] Analytics events visible in console (dev) — `umamiWebsiteId` set for prod
 - [ ] Repo pushed to `pure-tools/<name>`
 - [ ] Added to consumer list in `pure-tools/update-pure-tools.md`
 
@@ -123,3 +146,5 @@ git push -u origin main
 | `pure-tools/pure-tool-anatomy.md` | Building a library, not an app |
 | `pure-tools/update-pure-tools.md` | After publishing a new pure-tools version |
 | `setup-mcps.md` | New machine or fresh Claude Code install |
+| `deploy.md` | Deploy status, logs, promote, rollback |
+| `fix-logs.md` | Runtime errors → fix PRs |
